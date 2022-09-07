@@ -1,109 +1,50 @@
 #!/usr/bin/python3
-"""
-First Rectangle
-Class Rectangle that inherits from Base
-"""
-from models.base import Base
+"""this module contains the base class for following files"""
+import json
+import os
 
 
-class Rectangle(Base):
-    """Rectangle Class"""
-    def __init__(self, width, height, x=0, y=0, id=None):
-        """Initializa the data"""
-        super().__init__(id)
-        self.width = width
-        self.height = height
-        self.x = x
-        self.y = y
+class Base:
+    """this class will be the base of all others"""
+    __nb_objects = 0
 
-    @property
-    def width(self):
-        """Retrieves the width"""
-        return self.__width
+    def __init__(self, id=None):
+        self.__nb_objects = 0
+        if id is not None:
+            self.id = id
+        else:
+            Base.__nb_objects += 1
+            self.id = Base.__nb_objects
 
-    @width.setter
-    def width(self, width):
-        """Sets the width to a value"""
-        if type(width) is not int:
-            raise TypeError("width must be an integer")
-        if width <= 0:
-            raise ValueError("width must be > 0")
-        self.__width = width
+    def to_json_string(list_dictionaries):
+        """returns the jason string of a dictionary"""
+        return json.dumps(list_dictionaries)
 
-    @property
-    def height(self):
-        """Retrieves the height"""
-        return self.__height
+    @classmethod
+    def save_to_file(cls, list_objs):
+        filename = cls.__name__ + ".json"
+        jstr = []
+        if list_objs is not None:
+            for i in list_objs:
+                jstr.append(cls.to_dictionary(i))
+        with open(filename, 'w', encoding="utf-8",) as fileA:
+            fileA.write(cls.to_json_string(jstr))
 
-    @height.setter
-    def height(self, height):
-        """Sets the height to a value"""
-        if type(height) is not int:
-            raise TypeError("height must be an integer")
-        if height <= 0:
-            raise ValueError("height must be > 0")
-        self.__height = height
+    @classmethod
+    def create(cls, **dictionary):
+        if cls.__name__ == "Rectangle":
+            dumdum = cls(1, 1)
+        if cls.__name__ == "Square":
+            dumdum = cls(1)
+        dumdum.update(**dictionary)
+        return dumdum
 
-    @property
-    def x(self):
-        """Retrieves the x"""
-        return self.__x
-
-    @x.setter
-    def x(self, x):
-        """Sets the x to a value"""
-        if type(x) is not int:
-            raise TypeError("x must be an integer")
-        if x < 0:
-            raise ValueError("x must be >= 0")
-        self.__x = x
-
-    @property
-    def y(self):
-        """Retrieves the y"""
-        return self.__y
-
-    @y.setter
-    def y(self, y):
-        """Sets the x to a value"""
-        if type(y) is not int:
-            raise TypeError("y must be an integer")
-        if y < 0:
-            raise ValueError("y must be >= 0")
-        self.__y = y
-
-    def area(self):
-        """Return the current rectangle area"""
-        return self.__width * self.__height
-
-    def display(self):
-        """Display a square of #"""
-        for y in range(self.__y):
-            print()
-
-        for i in range(self.__height):
-            print(" " * self.__x, end='')
-            print('#' * self.__width)
-
-    def __str__(self):
-        """Return a string with rectangle to stdout"""
-        s = "[Rectangle] ({}) {}/{} - {}/{}".format(
-            self.id, self.__x, self.__y, self.__width, self.__height)
-        return s
-
-    def update(self, *args, **kwargs):
-        """Assigns attributes"""
-        if args is not None and len(args) != 0:
-            for i in range(len(args)):
-                setattr(self, (list(self.__dict__.keys()))[i], args[i])
-        elif kwargs is not None:
-            for key in kwargs:
-                if hasattr(self, key) is True:
-                    setattr(self, key, kwargs[key])
-
-    def to_dictionary(self):
-        """Returns the dictionary representation of a Rectangle"""
-        return dict(zip(
-            ["id", "width", "height", "x", "y"],
-            [self.id, self.width, self.height, self.x, self.y]
-        ))
+    @classmethod
+    def load_from_file(cls):
+        filename = cls.__name__ + ".json"
+        if os.path.isfile(filename):
+            with open(filename, 'r', encoding="utf-8",) as fileA:
+                return json.load(fileA)
+        else:
+            thisList = []
+            return thisList
